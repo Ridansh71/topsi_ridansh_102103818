@@ -1,16 +1,15 @@
-
 import sys
 import pandas as pd
 import numpy as np
 
 
-def check_input_parameters():
+def validate_input():
     if len(sys.argv) != 5:
-        print("Write it in correct format: python <program.py> <InputDataFile> <Weights> <Impacts> <ResultFileName>")
+        print("Please use the correct format: python <program.py> <InputDataFile> <Weights> <Impacts> <ResultFileName>")
         sys.exit(1)
 
 
-def load_data(input_file):
+def load_input_data(input_file):
     try:
         data = pd.read_csv(input_file)
         return data
@@ -19,13 +18,13 @@ def load_data(input_file):
         sys.exit(1)
 
 
-def check_data_columns(data):
+def check_columns(data):
     if len(data.columns) < 3:
         print("Error: Input file must contain three or more columns.")
         sys.exit(1)
 
 
-def check_numeric_values(data):
+def check_numeric(data):
     non_numeric_columns = data.iloc[:, 1:].applymap(
         lambda x: not np.isreal(x)).any()
     if non_numeric_columns.any():
@@ -33,7 +32,7 @@ def check_numeric_values(data):
         sys.exit(1)
 
 
-def check_weights_impacts(weights, impacts, num_columns):
+def validate_weights_impacts(weights, impacts, num_columns):
     weights_list = list(map(int, weights.split(',')))
     impacts_list = impacts.split(',')
 
@@ -46,20 +45,17 @@ def check_weights_impacts(weights, impacts, num_columns):
         sys.exit(1)
 
 
-def normalize_data(data):
+def normalize(data):
     normalized_data = data.iloc[:, 1:].apply(
         lambda x: x / np.sqrt(np.sum(x**2)), axis=0)
     return normalized_data
 
 
-def calculate_topsis_score(data, weights, impacts):
-    normalized_data = normalize_data(data)
-    weighted_normalized_data = normalized_data * \
-        list(map(int, weights.split(',')))
-    ideal_best = weighted_normalized_data.max(
-    ) if impacts[0] == '+' else weighted_normalized_data.min()
-    ideal_worst = weighted_normalized_data.min(
-    ) if impacts[0] == '+' else weighted_normalized_data.max()
+def calculate_topsis(data, weights, impacts):
+    normalized_data = normalize(data)
+    weighted_normalized_data = normalized_data * list(map(int, weights.split(',')))
+    ideal_best = weighted_normalized_data.max() if impacts[0] == '+' else weighted_normalized_data.min()
+    ideal_worst = weighted_normalized_data.min() if impacts[0] == '+' else weighted_normalized_data.max()
     topsis_score = np.sqrt(np.sum((weighted_normalized_data - ideal_best)**2, axis=1)) / (
         np.sqrt(np.sum((weighted_normalized_data - ideal_best)**2, axis=1)) +
         np.sqrt(np.sum((weighted_normalized_data - ideal_worst)**2, axis=1))
@@ -68,18 +64,18 @@ def calculate_topsis_score(data, weights, impacts):
 
 
 def main():
-    check_input_parameters()
+    validate_input()
     input_file = sys.argv[1]
     weights = sys.argv[2]
     impacts = sys.argv[3]
     result_file = sys.argv[4]
 
-    data = load_data(input_file)
-    check_data_columns(data)
-    check_numeric_values(data)
-    check_weights_impacts(weights, impacts, len(data.columns))
+    data = load_input_data(input_file)
+    check_columns(data)
+    check_numeric(data)
+    validate_weights_impacts(weights, impacts, len(data.columns))
 
-    topsis_score = calculate_topsis_score(data, weights, impacts)
+    topsis_score = calculate_topsis(data, weights, impacts)
     data['Topsis Score'] = topsis_score
     data['Rank'] = data['Topsis Score'].rank(ascending=False)
 
