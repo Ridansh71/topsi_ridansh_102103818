@@ -1,0 +1,10 @@
+README.md
+setup.py
+Topsis/__init__.py
+Topsis/__main__.py
+Topsis_ridansh_102103818.egg-info/PKG-INFO
+Topsis_ridansh_102103818.egg-info/SOURCES.txt
+Topsis_ridansh_102103818.egg-info/dependency_links.txt
+Topsis_ridansh_102103818.egg-info/entry_points.txt
+Topsis_ridansh_102103818.egg-info/requires.txt
+Topsis_ridansh_102103818.egg-info/top_level.txt
